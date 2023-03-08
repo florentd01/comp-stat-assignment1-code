@@ -1,0 +1,101 @@
+First, we load the necessary libraries and data.
+
+```{r}
+data <- read.csv("a1_data.csv")
+head(df, n=5)
+```
+Next, we need to construct a skeleton for our causal models. This is basically step 2 of the PC algorithm. In other words, pairwise independence tests are performed, and variables that are deemed statistically dependent receive a bi-directed edge.
+
+```{r}
+# Load necessary packages
+BiocManager::install('linAlg',force=TRUE)
+install.packages("BiocManager")
+install.packages("pcalg", dependencies=TRUE)
+BiocManager::install("graph")
+```
+
+
+```{r}
+install.packages("RBGL")
+
+```
+
+```{r}
+# Perform the PC algorithm to generate a skeleton
+BiocManager::install('RBGL',force= TRUE)
+library(RBGL)
+```
+
+```{r}
+
+library(pcalg)
+
+```
+
+
+Load the necessary libraries. We will use the "glasso" package for the graph lasso algorithm and the "corpcor" package for the correlation matrix.
+
+```{r}
+BiocManager::install('glasso',force= TRUE)
+library(glasso)
+```
+```{r}
+BiocManager::install('corpcor',force= TRUE)
+library(corpcor)
+```
+Compute the correlation matrix of the data using the "cor" function. The correlation matrix is required for the graph lasso algorithm.
+```{r}
+cor_mat <- cor(data)
+```
+
+Apply the graph lasso algorithm using the "glasso" function. The "glasso" function returns two objects: the inverse covariance matrix and the adjacency matrix.
+```{r}
+result <- glasso(cor_mat, rho=0.1)
+inv_cov <- result$wi
+adj_mat <- result$wi != 0
+```
+
+Visualize the skeleton graph using the "qgraph" function from the "qgraph" package. The "qgraph" function creates a plot of the graph using the adjacency matrix.
+```{r}
+BiocManager::install('qgraph',force= TRUE)
+library(qgraph)
+```
+
+```{r}
+qgraph(adj_mat, layout="spring", label.cex=0.7)
+```
+```{r}
+BiocManager::install('bnlearn',force= TRUE)
+library(bnlearn) # Load the bnlearn package for Bayesian network analysis
+```
+```{r}
+BiocManager::install('Rgraphviz',force= TRUE)
+library(Rgraphviz)
+```
+
+```{r}
+BiocManager::install('grid',force= TRUE)
+library(grid)
+```
+
+```{r}
+# Learn the structure of the Bayesian network using the GES algorithm
+bn <- gs(data)
+
+# Print the graph structure of the Bayesian network
+graphviz.plot(bn)
+
+# Generate the Bayesian network from the learned structure
+bn.fit <- bn.fit(bn, data)
+
+# Print the conditional probability tables of the Bayesian network
+print(bn.fit$cpt)
+```
+
+
+
+
+
+
+
+
